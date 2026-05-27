@@ -1,4 +1,5 @@
 ﻿const path = require("path");
+const fs = require("fs");
 const dotenv = require("dotenv");
 const express = require("express");
 const cors = require("cors");
@@ -35,6 +36,14 @@ app.use(express.urlencoded({ extended: true, limit: "10mb" }));
 // Serve static files (for uploaded images)
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// Serve the React build in production so the app can run from one Node process
+const frontendBuildPath = path.join(__dirname, "..", "frontend", "build");
+const frontendIndexPath = path.join(frontendBuildPath, "index.html");
+
+if (process.env.NODE_ENV === "production" && fs.existsSync(frontendIndexPath)) {
+    app.use(express.static(frontendBuildPath));
+}
+
 // Health check route
 app.get("/api/health", (req, res) => {
     res.status(200).json({ 
@@ -70,6 +79,12 @@ app.use((err, req, res, next) => {
 });
 
 // Catch-all 404 route
+if (process.env.NODE_ENV === "production" && fs.existsSync(frontendIndexPath)) {
+    app.get(/^\/(?!api\/|uploads\/).*/, (req, res) => {
+        res.sendFile(frontendIndexPath);
+    });
+}
+
 app.use((req, res) => {
     res.status(404).json({
         success: false,

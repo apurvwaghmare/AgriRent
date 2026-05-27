@@ -1,11 +1,9 @@
 const path = require('path');
 const dotenvPath = path.resolve(__dirname, '..', '.env');
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 // ✅ Load environment variables once
 require('dotenv').config({ path: dotenvPath });
-
-console.log("DEBUG → Attempting to load .env from:", dotenvPath);
-console.log("DEBUG → Loaded DB_PASSWORD:", process.env.DB_PASSWORD);
 
 const mysql = require('mysql2/promise');
 
@@ -25,19 +23,21 @@ const dbConfig = {
 // ✅ Create connection pool
 const pool = mysql.createPool(dbConfig);
 
-// Debug log (don’t show password)
-console.log('🔧 Database Configuration:');
-console.log(`   Host: ${dbConfig.host}:${dbConfig.port}`);
-console.log(`   User: ${dbConfig.user}`);
-console.log(`   Password: ${dbConfig.password ? '[SET]' : '[NOT SET]'}`);
-console.log(`   Database: ${dbConfig.database}`);
+if (isDevelopment) {
+    console.log('🔧 Database Configuration:');
+    console.log(`   Host: ${dbConfig.host}:${dbConfig.port}`);
+    console.log(`   User: ${dbConfig.user}`);
+    console.log(`   Database: ${dbConfig.database}`);
+}
 
 // ✅ Test DB connection
 const testConnection = async () => {
     try {
         const connection = await pool.getConnection();
-        console.log('✅ Database connected successfully');
-        console.log(`📊 Connected to database: ${dbConfig.database}`);
+        if (isDevelopment) {
+            console.log('✅ Database connected successfully');
+            console.log(`📊 Connected to database: ${dbConfig.database}`);
+        }
         connection.release();
     } catch (error) {
         console.error('❌ Database connection failed:', error.message);
@@ -71,7 +71,9 @@ const transaction = async (callback) => {
 
 const closePool = async () => {
     await pool.end();
-    console.log('Database pool closed');
+    if (isDevelopment) {
+        console.log('Database pool closed');
+    }
 };
 
 // Graceful shutdown

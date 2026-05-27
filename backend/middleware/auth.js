@@ -1,16 +1,23 @@
 const jwt = require('jsonwebtoken');
 const { query } = require('../config/db');
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+const debugLog = (...args) => {
+    if (isDevelopment) {
+        console.log(...args);
+    }
+};
 
 const auth = async (req, res, next) => {
     try {
         // Get token from header
         const authHeader = req.header('Authorization');
         
-        console.log('🔐 Auth middleware - checking token...');
-        console.log('📡 Authorization header:', authHeader ? 'Present' : 'Missing');
+        debugLog('🔐 Auth middleware - checking token...');
+        debugLog('📡 Authorization header:', authHeader ? 'Present' : 'Missing');
         
         if (!authHeader || !authHeader.startsWith('Bearer ')) {
-            console.log('❌ Auth failed: No valid Authorization header');
+            debugLog('❌ Auth failed: No valid Authorization header');
             return res.status(401).json({
                 success: false,
                 message: 'Access denied. No valid token provided.'
@@ -18,12 +25,10 @@ const auth = async (req, res, next) => {
         }
 
         const token = authHeader.substring(7); // Remove 'Bearer ' prefix
-        console.log('🔑 Token extracted:', token ? 'Present' : 'Missing');
 
         // Verify token
-        console.log('🔍 Verifying token with JWT_SECRET...');
         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-        console.log('✅ Token verified successfully:', { userId: decoded.userId, userType: decoded.userType });
+        debugLog('✅ Token verified successfully:', { userId: decoded.userId, userType: decoded.userType });
 
         // Determine table name based on user type
         let tableName;
@@ -38,14 +43,14 @@ const auth = async (req, res, next) => {
                 tableName = 'customers';
                 break;
             default:
-                console.log('❌ Auth failed: Invalid user type:', decoded.userType);
+                debugLog('❌ Auth failed: Invalid user type:', decoded.userType);
                 return res.status(401).json({
                     success: false,
                     message: 'Invalid token. Invalid user type.'
                 });
         }
 
-        console.log('🔍 Checking user existence in table:', tableName);
+        debugLog('🔍 Checking user existence in table:', tableName);
         
         // Check if user still exists
         const users = await query(
@@ -54,7 +59,7 @@ const auth = async (req, res, next) => {
         );
 
         if (users.length === 0) {
-            console.log('❌ Auth failed: User not found in database');
+            debugLog('❌ Auth failed: User not found in database');
             return res.status(401).json({
                 success: false,
                 message: 'Invalid token. User not found.'
@@ -131,11 +136,11 @@ const auth = async (req, res, next) => {
         next();
 
     } catch (error) {
-        console.log('❌ Auth middleware error:', error.message);
-        console.log('🔍 Error type:', error.name);
+        debugLog('❌ Auth middleware error:', error.message);
+        debugLog('🔍 Error type:', error.name);
         
         if (error.name === 'JsonWebTokenError') {
-            console.log('❌ JWT Error: Invalid token format or signature');
+            debugLog('❌ JWT Error: Invalid token format or signature');
             return res.status(401).json({
                 success: false,
                 message: 'Invalid token.'
@@ -143,7 +148,7 @@ const auth = async (req, res, next) => {
         }
         
         if (error.name === 'TokenExpiredError') {
-            console.log('❌ JWT Error: Token has expired');
+            debugLog('❌ JWT Error: Token has expired');
             return res.status(401).json({
                 success: false,
                 message: 'Token expired.'

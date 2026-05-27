@@ -7,6 +7,7 @@ const { query } = require('../config/db');
 const { auth, requireCustomer } = require('../middleware/auth');
 
 const router = express.Router();
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 // =====================================================
 // MULTER CONFIGURATION FOR ID PROOF UPLOADS
@@ -55,7 +56,9 @@ const upload = multer({
 // GET /api/customer/dashboard - Customer dashboard data
 router.get('/dashboard', auth, requireCustomer, async (req, res) => {
     try {
-        console.log('🏠 Customer dashboard request received for user:', req.user.id);
+        if (isDevelopment) {
+            console.log('🏠 Customer dashboard request received for user:', req.user.id);
+        }
         const customerId = req.user.id;
 
         // Initialize default values in case tables don't exist or are empty

@@ -95,3 +95,23 @@ The system uses the following database tables:
 - All routes include proper error handling and validation
 
 **The authentication system is now complete and ready for production use!** 🚀
+
+## Deployment
+
+The simplest public deployment path for recruiters is a single Docker service plus a MySQL database. The existing Dockerfile already builds the React app and serves it from the Node backend, so you only need one public URL.
+
+1. Create a MySQL database with any managed provider you trust.
+1. Deploy the root Dockerfile as a web service.
+1. Set these environment variables in the host:
+  - `MYSQL_ROOT_PASSWORD`
+  - `JWT_SECRET`
+  - `FRONTEND_URL` set to your final public app URL
+  - `DB_HOST`
+  - `DB_USER`
+  - `DB_PASSWORD`
+  - `DB_NAME=agriculture`
+  - `DB_PORT=3306`
+1. Point your host health check to `GET /api/health`.
+1. If you later split frontend and backend onto different hosts, set `REACT_APP_API_URL` in `frontend/.env` to the backend origin, such as `https://api.yourdomain.com`.
+
+After deployment, the public app should load from the root URL and the API should respond on `/api/health`.

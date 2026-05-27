@@ -6,6 +6,7 @@ const { query } = require('../config/db');
 const { auth, requireVendor } = require('../middleware/auth');
 
 const router = express.Router();
+const isDevelopment = process.env.NODE_ENV === 'development';
 
 // =====================================================
 // MULTER CONFIGURATION FOR IMAGE UPLOADS
@@ -60,8 +61,10 @@ const upload = multer({
 // GET /api/vendor/dashboard - Vendor dashboard with statistics
 router.get('/dashboard', auth, requireVendor, async (req, res) => {
     try {
-        console.log('🔍 Vendor dashboard accessed by user:', req.user);
-        console.log('🔍 Vendor status:', req.vendorStatus);
+        if (isDevelopment) {
+            console.log('🔍 Vendor dashboard accessed by user:', req.user);
+            console.log('🔍 Vendor status:', req.vendorStatus);
+        }
         const vendorId = req.user.id;
 
         // If vendor is pending, return limited data
@@ -98,7 +101,9 @@ router.get('/dashboard', auth, requireVendor, async (req, res) => {
                 [vendorId]
             );
             equipmentCount = equipmentResult[0].total;
-            console.log('📊 Equipment count for vendor', vendorId, ':', equipmentCount);
+            if (isDevelopment) {
+                console.log('📊 Equipment count for vendor', vendorId, ':', equipmentCount);
+            }
         } catch (err) {
             console.error('Equipment count query error:', err);
         }
