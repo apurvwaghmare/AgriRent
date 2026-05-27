@@ -24,7 +24,7 @@ const generateToken = (user, userType) => {
 // VENDOR ROUTES
 // =====================================================
 
-// Vendor Registration (status: pending)
+// Vendor Registration (status: approved)
 router.post('/vendor/register', async (req, res) => {
     try {
         const { 
@@ -71,15 +71,15 @@ router.post('/vendor/register', async (req, res) => {
         const saltRounds = 12;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Insert new vendor with 'pending' status
+        // Insert new vendor with 'approved' status so they can log in immediately
         const result = await query(`
             INSERT INTO vendors (shop_name, owner_name, email, phone, address, city, password, status) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, 'pending')
+            VALUES (?, ?, ?, ?, ?, ?, ?, 'approved')
         `, [shop_name, owner_name, email, phone, address, city, hashedPassword]);
 
         res.status(201).json({
             success: true,
-            message: 'Vendor registration successful. Your account is pending approval by admin.',
+            message: 'Vendor registration successful. Your account is approved.',
             data: {
                 id: result.insertId,
                 shop_name,
@@ -87,7 +87,7 @@ router.post('/vendor/register', async (req, res) => {
                 email,
                 phone,
                 city,
-                status: 'pending'
+                status: 'approved'
             }
         });
 
@@ -217,22 +217,22 @@ router.post('/customer/register', async (req, res) => {
         const saltRounds = 12;
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-        // Insert new customer with 'pending' status
+        // Insert new customer with 'approved' status so they can log in immediately
         const result = await query(`
             INSERT INTO customers (name, email, phone, address, password, status) 
-            VALUES (?, ?, ?, ?, ?, 'pending')
+            VALUES (?, ?, ?, ?, ?, 'approved')
         `, [name, email, phone, address, hashedPassword]);
 
         res.status(201).json({
             success: true,
-            message: 'Customer registration successful. Your account is pending approval by admin.',
+            message: 'Customer registration successful. Your account is approved.',
             data: {
                 id: result.insertId,
                 name,
                 email,
                 phone,
                 address,
-                status: 'pending'
+                status: 'approved'
             }
         });
 
@@ -273,13 +273,7 @@ router.post('/customer/login', async (req, res) => {
 
         const customer = customers[0];
 
-        // Check if customer is approved
-        if (customer.status !== 'approved') {
-            return res.status(403).json({
-                success: false,
-                message: `Account ${customer.status}. Please wait for admin approval.`
-            });
-        }
+        // Customer accounts are auto-approved on registration
 
         // Verify password
         const isPasswordValid = await bcrypt.compare(password, customer.password);
