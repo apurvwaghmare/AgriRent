@@ -221,17 +221,10 @@ CREATE TABLE audit_logs (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
--- Sample Data
+-- Seed Data (categories only)
 -- =====================================================
-
-INSERT INTO admins (name, email, password) VALUES
-('System Admin', 'admin@agriculture-rental.com', '$2b$12$examplehashforadmin');
-
-INSERT INTO vendors (shop_name, owner_name, email, phone, address, city, password, status) VALUES
-('Green Farm Equipments', 'John Doe', 'vendor@greenfarm.com', '9876543210', '123 Farm Road', 'Mumbai', '$2b$12$examplehashforvendor', 'approved');
-
-INSERT INTO customers (name, email, phone, address, password, status) VALUES
-('Farm Customer', 'customer@farm.com', '9123456780', '456 Village Road', '$2b$12$examplehashforcustomer', 'approved');
+-- Note: Do not insert sample admins/vendors/customers in production.
+-- Create a real admin manually and let users register via the app.
 
 INSERT INTO equipment_categories (name, description) VALUES
 ('Tractors', 'All types of agricultural tractors'),
