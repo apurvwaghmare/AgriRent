@@ -1,6 +1,9 @@
 -- Agriculture Equipment Rental System Database Schema (Import-safe)
 -- Use this file when importing into an existing database like freeSQLDatabase/phpMyAdmin.
 
+CREATE DATABASE IF NOT EXISTS sql12828424;
+USE sql12828424;
+
 -- Set charset and collation
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
