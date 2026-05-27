@@ -18,7 +18,7 @@ CREATE TABLE admins (
     email VARCHAR(150) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     INDEX idx_admin_email (email)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -38,7 +38,7 @@ CREATE TABLE vendors (
     password VARCHAR(255) NOT NULL,
     status ENUM('pending', 'approved', 'suspended') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     INDEX idx_vendor_email (email),
     INDEX idx_vendor_status (status),
@@ -59,7 +59,7 @@ CREATE TABLE customers (
     id_proof VARCHAR(255) NULL COMMENT 'Path to ID proof document',
     password VARCHAR(255) NOT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     INDEX idx_customer_email (email),
     INDEX idx_customer_phone (phone),
@@ -75,7 +75,7 @@ CREATE TABLE equipment_categories (
     name VARCHAR(100) NOT NULL,
     description TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     INDEX idx_category_name (name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -100,7 +100,7 @@ CREATE TABLE equipment (
     images JSON NULL,
     specifications JSON NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     FOREIGN KEY (vendor_id) REFERENCES vendors(id) ON DELETE CASCADE,
     FOREIGN KEY (category_id) REFERENCES equipment_categories(id) ON DELETE CASCADE,
@@ -125,7 +125,7 @@ CREATE TABLE bookings (
     status ENUM('pending', 'confirmed', 'cancelled', 'completed') NOT NULL DEFAULT 'pending',
     payment_status ENUM('pending', 'paid', 'refunded') NOT NULL DEFAULT 'pending',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
     FOREIGN KEY (equipment_id) REFERENCES equipment(id) ON DELETE CASCADE,
@@ -148,7 +148,7 @@ CREATE TABLE feedback (
     rating INT NOT NULL CHECK (rating >= 1 AND rating <= 5),
     comment TEXT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE CASCADE,
     FOREIGN KEY (equipment_id) REFERENCES equipment(id) ON DELETE CASCADE,
@@ -172,7 +172,7 @@ CREATE TABLE payments (
     transaction_id VARCHAR(255) NULL,
     payment_date TIMESTAMP NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     FOREIGN KEY (booking_id) REFERENCES bookings(id) ON DELETE CASCADE,
     INDEX idx_payment_booking (booking_id),
@@ -193,7 +193,7 @@ CREATE TABLE notifications (
     type ENUM('info', 'success', 'warning', 'error') NOT NULL DEFAULT 'info',
     is_read BOOLEAN NOT NULL DEFAULT FALSE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT NULL,
     
     INDEX idx_notification_user (user_type, user_id),
     INDEX idx_notification_read (is_read),
